@@ -8,16 +8,16 @@ int SaveTree(TreeNode* node, FILE* file, int depth = 0) {
     assert(file != NULL);
     assert(node != NULL);
 
-    for (int i = 0; i < depth; i++) fprintf(file, "    ");
+    fprintf(file, "%*s", depth*4, "");
     fprintf(file, "{\n");
 
-    for (int i = 0; i < depth + 1; i++) fprintf(file, "    ");
+    fprintf(file, "%*s", (depth+1)*4, "");
     fprintf(file, "%s\n", node->value);
 
     if (node->left) SaveTree(node->left, file, depth + 1);
     if (node->right) SaveTree(node->right, file, depth + 1);
 
-    for (int i = 0; i < depth; i++) fprintf(file, "    ");
+    fprintf(file, "%*s", depth*4, "");
     fprintf(file, "}\n");
 
     return SUCCESS_DONE;
@@ -97,3 +97,7 @@ TreeNode* LoadTreeFromFile(const char* filename) {
     fclose(file);
     return Root;
 }
+
+
+
+//TODO: ИДТИ ПО МАССИВУ ТЕКСТА, ИЗБАВИТЬСЯ ОТ КУЧИ fgets

@@ -177,30 +177,23 @@ int AkinatorTraversal(TreeNode** node) {
 //мы должны будем вывести остаток тех определений для каждого объекта, которые и различают их
 
 
-int FindObjectWithPath(TreeNode* Node, Stack* stk, const char* target, char* path) {
+int FindObjectWithPath(TreeNode* Node, Stack* stk, const char* target) {
     if (Node == NULL) {
         return NODE_NULLPTR;
     }
 
     if (strcmp(Node->value, target) == 0) {
         printf("Объект найден: %s\n", Node->value);
-        printf("Путь к объекту: %s\n", path);
         return SUCCESS_DONE;
     }
 
     if (strchr(Node->value, '?')) {
-        char temp_path[INPUT_SIZE];
-        strcpy(temp_path, path);
-
-        strcat(temp_path, "да -> ");
-        if (FindObjectWithPath(Node->left, stk, target, temp_path) == SUCCESS_DONE) {
+        if (FindObjectWithPath(Node->left, stk, target) == SUCCESS_DONE) {
             StackPush(stk, Node->left);
             printf("pointer да = %p\n", Node->left);
             return SUCCESS_DONE;
         }
-        temp_path[strlen(temp_path) - 8] = '\0';  // Убираем "да -> " из пути
-        strcat(temp_path, "нет -> ");
-        if (FindObjectWithPath(Node->right, stk, target, temp_path) == SUCCESS_DONE) {
+        if (FindObjectWithPath(Node->right, stk, target) == SUCCESS_DONE) {
             StackPush(stk, Node->right);
             printf("pointer нет = %p\n", Node->right);
             return SUCCESS_DONE;
@@ -211,17 +204,21 @@ int FindObjectWithPath(TreeNode* Node, Stack* stk, const char* target, char* pat
 }
 
 
-int AkinatorDefinition(Stack* stk, elem_t word) {
+int AkinatorDefinition(TreeNode* Node, Stack* stk, const char* target) {
     assert(stk != NULL);
+    FindObjectWithPath(Node, stk, target);
+    StackPush(stk, Node);
     StackDump(stk);
     TreeNode* current_node = nullptr;
     TreeNode* parent_node = nullptr;
-    char temp_val[INPUT_SIZE] = {};
-    printf("%s - ", word);
+    //char temp_val[INPUT_SIZE] = {};
+    char* temp_val = nullptr;
+    //strdup(parent_node->value);
+    printf("%s - ", target);
 
     current_node = StackPop(stk);
     if (current_node == NULL) {
-        printf("Ошибка: стек пуст или путь неверен\n");
+        printf("Ошибка: стек пуст\n");
         return NODE_NULLPTR;
     }
 
@@ -240,13 +237,15 @@ int AkinatorDefinition(Stack* stk, elem_t word) {
         //printf("parent node left = %p, parent node right = %p\n", parent_node->left, parent_node->right);
         if (parent_node->left == current_node) {
 
-            strcpy(temp_val, parent_node->value);
+            //strcpy(temp_val, parent_node->value); // FIXME to printf
+            temp_val = strdup(parent_node->value);
+
             temp_val[strlen(temp_val) - 1] = '\0';
 
             printf("%s | ", temp_val);
         }
         else if (parent_node->right == current_node) {
-            strcpy(temp_val, parent_node->value);
+            temp_val = strdup(parent_node->value);
             temp_val[strlen(temp_val) - 1] = '\0';
             printf("не %s |", temp_val);
         }
@@ -257,4 +256,62 @@ int AkinatorDefinition(Stack* stk, elem_t word) {
 
     printf("\n");
     return SUCCESS_DONE;
+}
+
+int AkinatorDifference(TreeNode* Node, Stack* stk_1, Stack* stk_2, elem_t word_1, elem_t word_2) {
+    assert(stk_1 != NULL);
+    assert(stk_2 != NULL);
+    FindObjectWithPath(Node, stk_1, word_1);
+    FindObjectWithPath(Node, stk_2, word_2);
+    StackPush(stk_1, Node);
+    StackPush(stk_2, Node);
+    StackDump(stk_1);
+    StackDump(stk_2);
+    TreeNode* current_node_1 = nullptr;
+    TreeNode* current_node_2 = nullptr;
+    TreeNode* parent_node_1 = nullptr;
+    TreeNode* parent_node_2 = nullptr;
+    char* temp_val_1 = nullptr;
+    char* temp_val_2 = nullptr;
+    printf("Вот в чем разница: \n");
+    // current_node_1 = StackPop(stk_1);
+    // current_node_2 = StackPop(stk_2);
+
+    // if ((current_node_1 == NULL) || (current_node_2 == NULL )) {
+    //     printf("Ошибка: стек пуст\n");
+    //     return NODE_NULLPTR;
+    // }
+    while ((StackGetSize(stk_1) > 0) && (StackGetSize(stk_2) > 0)) {
+        StackDump(stk_1);
+        StackDump(stk_2);
+        parent_node_1 = current_node_1;
+        parent_node_2 = current_node_2;
+        current_node_1 = StackPop(stk_1);
+        current_node_2 = StackPop(stk_2);
+        printf("-----------------------------------\n");
+        if (current_node_1 != current_node_2) {
+            if (parent_node_1->left == current_node_1) {
+
+            }
+            temp_val_1 = strdup(current_node_1->value);
+            temp_val_2 = strdup(current_node_2->value);
+            temp_val_1[strlen(temp_val_1) - 1] = '\0';
+            temp_val_2[strlen(temp_val_2) - 1] = '\0';
+            printf("первое различие: %s - %s, а %s - %s\n", word_1, temp_val_1, word_2, temp_val_2);
+            // printf("??????????????????\n");
+            // StackDump(stk_1);
+            // StackDump(stk_2);
+            return SUCCESS_DONE;
+
+        }
+
+
+    }
+
+
+
+
+    printf("Херобора\n");
+
+    return -1;
 }

@@ -209,9 +209,9 @@ int AkinatorDefinition(TreeNode* Node, Stack* stk, const char* target) {
     FindObjectWithPath(Node, stk, target);
     StackPush(stk, Node);
     StackDump(stk);
+    PrintRestDefinition(Node, stk, target);
     TreeNode* current_node = nullptr;
     TreeNode* parent_node = nullptr;
-    //char temp_val[INPUT_SIZE] = {};
     char* temp_val = nullptr;
     //strdup(parent_node->value);
     printf("%s - ", target);
@@ -271,47 +271,56 @@ int AkinatorDifference(TreeNode* Node, Stack* stk_1, Stack* stk_2, elem_t word_1
     TreeNode* current_node_2 = nullptr;
     TreeNode* parent_node_1 = nullptr;
     TreeNode* parent_node_2 = nullptr;
-    char* temp_val_1 = nullptr;
-    char* temp_val_2 = nullptr;
+    char* temp_val = nullptr;
     printf("Вот в чем разница: \n");
-    // current_node_1 = StackPop(stk_1);
-    // current_node_2 = StackPop(stk_2);
-
-    // if ((current_node_1 == NULL) || (current_node_2 == NULL )) {
-    //     printf("Ошибка: стек пуст\n");
-    //     return NODE_NULLPTR;
-    // }
     while ((StackGetSize(stk_1) > 0) && (StackGetSize(stk_2) > 0)) {
-        StackDump(stk_1);
-        StackDump(stk_2);
+        // StackDump(stk_1);
+        // StackDump(stk_2);
         parent_node_1 = current_node_1;
         parent_node_2 = current_node_2;
-        current_node_1 = StackPop(stk_1);
+        current_node_1 = StackPop(stk_1); //NOTE: глянуть StackPop, как решить вопрос со StackCheck
         current_node_2 = StackPop(stk_2);
-        printf("-----------------------------------\n");
-        if (current_node_1 != current_node_2) {
+        if ((current_node_1 == NULL) || (current_node_2 == NULL )) {
+            printf("Ошибка: стек пуст\n");
+            return NODE_NULLPTR;
+        }
+        if ((current_node_1 != current_node_2) && (parent_node_1 == parent_node_2)) {
             if (parent_node_1->left == current_node_1) {
+                temp_val = strdup(parent_node_1->value);
+                temp_val[strlen(temp_val) - 1] = '\0';
+                printf("первое различие: %s - %s, а %s - не %s\n", word_1, temp_val, word_2, temp_val);
+                StackPush(stk_1, current_node_1);
+                StackPush(stk_2, current_node_2);
+                StackDump(stk_1);
+                StackDump(stk_2);
+                return SUCCESS_DONE;
 
             }
-            temp_val_1 = strdup(current_node_1->value);
-            temp_val_2 = strdup(current_node_2->value);
-            temp_val_1[strlen(temp_val_1) - 1] = '\0';
-            temp_val_2[strlen(temp_val_2) - 1] = '\0';
-            printf("первое различие: %s - %s, а %s - %s\n", word_1, temp_val_1, word_2, temp_val_2);
-            // printf("??????????????????\n");
-            // StackDump(stk_1);
-            // StackDump(stk_2);
-            return SUCCESS_DONE;
+            else if (parent_node_1->right == current_node_1) {
+                temp_val = strdup(parent_node_1->value);
+                temp_val[strlen(temp_val) - 1] = '\0';
+                printf("первое различие: %s - не %s, а %s - %s\n", word_1, temp_val, word_2, temp_val);
+                StackPush(stk_1, current_node_1);
+                StackPush(stk_2, current_node_2);
+                StackDump(stk_1);
+                StackDump(stk_2);
+                return SUCCESS_DONE;
+
+
+            }
 
         }
 
-
     }
 
+    printf("Проблема в дереве, какая-то хрень с поиском разницы\n");
+
+    return  ERROR_OCCURED;
+}
 
 
+int PrintRestDefinition() {
 
-    printf("Херобора\n");
 
-    return -1;
+    return SUCCESS_DONE;
 }

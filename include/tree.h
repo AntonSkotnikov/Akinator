@@ -16,7 +16,8 @@ enum errors {
     ALLOC_ERROR = 1,
     NODE_NULLPTR = 2,
     FILE_OPENING_ERR = -1,
-    INPUT_ERR = 3
+    INPUT_ERR = 3,
+    ERROR_OCCURED = -2
 
 };
 
@@ -43,6 +44,12 @@ TreeNode* LoadTree(FILE* file);
 TreeNode* LoadTreeFromFile(const char* filename);
 
 int string_separator(char* str);
+
+TreeNode* LoadTreeFromLines(char** lines, int* pos, int total_lines);
+
+void WriteIndent(FILE* file, int depth);
+
+void create_ptr_arr(char *buffer, int strings_num, char **address);
 
 
 #endif //TREE_H

@@ -20,10 +20,6 @@ void create_ptr_arr(char *buffer, int strings_num, char **address) {
 }
 
 
-#include <stdio.h>
-#include <assert.h>
-#include "tree.h"
-#include "akinator.h"
 
 void WriteIndent(FILE* file, int depth) {
     fprintf(file, "%*s", depth * 4, "");

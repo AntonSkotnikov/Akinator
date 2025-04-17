@@ -208,22 +208,82 @@ int AkinatorDefinition(TreeNode* Node, Stack* stk, const char* target) {
     assert(stk != NULL);
     FindObjectWithPath(Node, stk, target);
     StackPush(stk, Node);
-    StackDump(stk);
-    PrintRestDefinition(Node, stk, target);
+    // StackDump(stk);
+    printf("%s - ", target);
+    PrintRestDefinition(stk);
+    return SUCCESS_DONE;
+}
+
+int AkinatorDifference(TreeNode* Node, Stack* stk_1, Stack* stk_2, elem_t word_1, elem_t word_2) {
+    assert(stk_1 != NULL);
+    assert(stk_2 != NULL);
+    FindObjectWithPath(Node, stk_1, word_1);
+    FindObjectWithPath(Node, stk_2, word_2);
+    StackPush(stk_1, Node);
+    StackPush(stk_2, Node);
+    // StackDump(stk_1);
+    // StackDump(stk_2);
+    TreeNode* current_node_1 = nullptr;
+    TreeNode* current_node_2 = nullptr;
+    TreeNode* parent_node_1 = nullptr;
+    TreeNode* parent_node_2 = nullptr;
+    char* temp_val = nullptr;
+    printf("Вот в чем разница: \n");
+    while ((StackGetSize(stk_1) > 0) && (StackGetSize(stk_2) > 0)) {
+        // StackDump(stk_1);
+        // StackDump(stk_2);
+        parent_node_1 = current_node_1;
+        parent_node_2 = current_node_2;
+        current_node_1 = StackPop(stk_1); //NOTE: глянуть StackPop, как решить вопрос со StackCheck
+        current_node_2 = StackPop(stk_2);
+        if ((current_node_1 == NULL) || (current_node_2 == NULL )) {
+            printf("Ошибка: стек пуст\n");
+            return NODE_NULLPTR;
+        }
+        if ((current_node_1 != current_node_2) && (parent_node_1 == parent_node_2)) {
+            if (parent_node_1->left == current_node_1) {
+                StackPush(stk_1, current_node_1);
+                StackPush(stk_2, current_node_2);
+                temp_val = strdup(parent_node_1->value);
+                temp_val[strlen(temp_val) - 1] = '\0';
+                PrintDifference(stk_2, stk_1, temp_val, word_2, word_1);
+
+                return SUCCESS_DONE;
+
+            }
+            else if (parent_node_1->right == current_node_1) {
+                StackPush(stk_1, current_node_1);
+                StackPush(stk_2, current_node_2);
+                temp_val = strdup(parent_node_1->value);
+                temp_val[strlen(temp_val) - 1] = '\0';
+                PrintDifference(stk_1, stk_2, temp_val, word_1, word_2);
+
+                return SUCCESS_DONE;
+
+
+            }
+
+        }
+
+    }
+
+    printf("Проблема в дереве, какая-то хрень с поиском разницы\n");
+    return  ERROR_OCCURED;
+}
+
+
+int PrintRestDefinition(Stack* stk) {
+
+    assert(stk != NULL);
     TreeNode* current_node = nullptr;
     TreeNode* parent_node = nullptr;
     char* temp_val = nullptr;
-    //strdup(parent_node->value);
-    printf("%s - ", target);
-
     current_node = StackPop(stk);
     if (current_node == NULL) {
         printf("Ошибка: стек пуст\n");
         return NODE_NULLPTR;
     }
 
-    //printf("CUR NODE = %p\n", current_node);
-    //printf("stack size = %zu\n", stk->service_size);
 
     while (StackGetSize(stk) > 0)
     {
@@ -233,8 +293,7 @@ int AkinatorDefinition(TreeNode* Node, Stack* stk, const char* target) {
             printf("Ошибка: стек пуст или путь неверен\n");
             return NODE_NULLPTR;
         }
-        //printf("parent_node = %p, cur node = %p\n", parent_node, current_node);
-        //printf("parent node left = %p, parent node right = %p\n", parent_node->left, parent_node->right);
+
         if (parent_node->left == current_node) {
 
             //strcpy(temp_val, parent_node->value); // FIXME to printf
@@ -255,71 +314,18 @@ int AkinatorDefinition(TreeNode* Node, Stack* stk, const char* target) {
     }
 
     printf("\n");
+
     return SUCCESS_DONE;
 }
 
-int AkinatorDifference(TreeNode* Node, Stack* stk_1, Stack* stk_2, elem_t word_1, elem_t word_2) {
-    assert(stk_1 != NULL);
-    assert(stk_2 != NULL);
-    FindObjectWithPath(Node, stk_1, word_1);
-    FindObjectWithPath(Node, stk_2, word_2);
-    StackPush(stk_1, Node);
-    StackPush(stk_2, Node);
-    StackDump(stk_1);
-    StackDump(stk_2);
-    TreeNode* current_node_1 = nullptr;
-    TreeNode* current_node_2 = nullptr;
-    TreeNode* parent_node_1 = nullptr;
-    TreeNode* parent_node_2 = nullptr;
-    char* temp_val = nullptr;
-    printf("Вот в чем разница: \n");
-    while ((StackGetSize(stk_1) > 0) && (StackGetSize(stk_2) > 0)) {
-        // StackDump(stk_1);
-        // StackDump(stk_2);
-        parent_node_1 = current_node_1;
-        parent_node_2 = current_node_2;
-        current_node_1 = StackPop(stk_1); //NOTE: глянуть StackPop, как решить вопрос со StackCheck
-        current_node_2 = StackPop(stk_2);
-        if ((current_node_1 == NULL) || (current_node_2 == NULL )) {
-            printf("Ошибка: стек пуст\n");
-            return NODE_NULLPTR;
-        }
-        if ((current_node_1 != current_node_2) && (parent_node_1 == parent_node_2)) {
-            if (parent_node_1->left == current_node_1) {
-                temp_val = strdup(parent_node_1->value);
-                temp_val[strlen(temp_val) - 1] = '\0';
-                printf("первое различие: %s - %s, а %s - не %s\n", word_1, temp_val, word_2, temp_val);
-                StackPush(stk_1, current_node_1);
-                StackPush(stk_2, current_node_2);
-                StackDump(stk_1);
-                StackDump(stk_2);
-                return SUCCESS_DONE;
+int PrintDifference(Stack* stk_1, Stack* stk_2, char* temp_val, elem_t word_1, elem_t word_2) {
 
-            }
-            else if (parent_node_1->right == current_node_1) {
-                temp_val = strdup(parent_node_1->value);
-                temp_val[strlen(temp_val) - 1] = '\0';
-                printf("первое различие: %s - не %s, а %s - %s\n", word_1, temp_val, word_2, temp_val);
-                StackPush(stk_1, current_node_1);
-                StackPush(stk_2, current_node_2);
-                StackDump(stk_1);
-                StackDump(stk_2);
-                return SUCCESS_DONE;
-
-
-            }
-
-        }
-
-    }
-
-    printf("Проблема в дереве, какая-то хрень с поиском разницы\n");
-
-    return  ERROR_OCCURED;
-}
-
-
-int PrintRestDefinition() {
+    printf("первое различие: %s - %s, а %s - не %s\n", word_2, temp_val, word_1, temp_val);
+    printf("А вот различающие части определений объектов: \n");
+    printf("%s - ", word_1);
+    PrintRestDefinition(stk_1);
+    printf("%s - ", word_2);
+    PrintRestDefinition(stk_2);
 
 
     return SUCCESS_DONE;

@@ -21,7 +21,7 @@ bool is_no(const char* str) {
 
 
 TreeNode** processing_bad_input(char* input, TreeNode** node) {
-
+    assert(node != NULL);
     while (true) {
         if (is_yes(input)) {
             return &((*node)->left);
@@ -33,7 +33,7 @@ TreeNode** processing_bad_input(char* input, TreeNode** node) {
             printf("Не понял. Введи еще раз yes/no или да/нет. Это %s\n", (*node)->value);
             fgets(input, INPUT_SIZE, stdin);
             string_separator(input);
-            //printf("input = |%s|, sizeof = %lu, is_yes = %d, is_no = %d\n", input, sizeof(input), is_yes(input), is_no(input) );
+
         }
     }
 
@@ -166,18 +166,16 @@ int AkinatorTraversal(TreeNode** node) {
 }
 
 
-//TODO: Для Определения нужно: воспользоваться стэком, когда мы нашли конкретный объект, мы должны делать постфиксный обход: возвращаться на уровень выше и пушить этот объект
+//NOTE Для Определения нужно: воспользоваться стэком, когда мы нашли конкретный объект, мы должны делать постфиксный обход: возвращаться на уровень выше и пушить этот объект
 
 
-
-//TODO: сделать бесконечный цикл с нексколькими режимами: угадать, определение, и выйти
-
-//TODO: для разницы между объектами: для объекта 1 свой стек, для объекта 2 - свой стэк.
+//NOTE: для разницы между объектами: для объекта 1 свой стек, для объекта 2 - свой стэк.
 //мы должны попить их, и искать момент, когда у них произойдет первое различие. На этом моменте
 //мы должны будем вывести остаток тех определений для каждого объекта, которые и различают их
 
 
 int FindObjectWithPath(TreeNode* Node, Stack* stk, const char* target) {
+    assert(stk != NULL);
     if (Node == NULL) {
         return NODE_NULLPTR;
     }
@@ -244,10 +242,12 @@ int AkinatorDifference(TreeNode* Node, Stack* stk_1, Stack* stk_2, elem_t word_1
             if (parent_node_1->left == current_node_1) {
                 StackPush(stk_1, current_node_1);
                 StackPush(stk_2, current_node_2);
-                temp_val = strdup(parent_node_1->value);
+                temp_val = strdup(parent_node_1->value); //NOTE нужно ли фришить?
                 temp_val[strlen(temp_val) - 1] = '\0';
                 PrintDifference(stk_2, stk_1, temp_val, word_2, word_1);
 
+                free(temp_val);
+                temp_val = nullptr;
                 return SUCCESS_DONE;
 
             }
@@ -257,7 +257,8 @@ int AkinatorDifference(TreeNode* Node, Stack* stk_1, Stack* stk_2, elem_t word_1
                 temp_val = strdup(parent_node_1->value);
                 temp_val[strlen(temp_val) - 1] = '\0';
                 PrintDifference(stk_1, stk_2, temp_val, word_1, word_2);
-
+                free(temp_val);
+                temp_val = nullptr;
                 return SUCCESS_DONE;
 
 
@@ -284,7 +285,6 @@ int PrintRestDefinition(Stack* stk) {
         return NODE_NULLPTR;
     }
 
-
     while (StackGetSize(stk) > 0)
     {
         parent_node = current_node;
@@ -295,18 +295,19 @@ int PrintRestDefinition(Stack* stk) {
         }
 
         if (parent_node->left == current_node) {
-
             //strcpy(temp_val, parent_node->value); // FIXME to printf
             temp_val = strdup(parent_node->value);
-
             temp_val[strlen(temp_val) - 1] = '\0';
-
             printf("%s | ", temp_val);
+            free(temp_val);
+            temp_val = nullptr;
         }
         else if (parent_node->right == current_node) {
             temp_val = strdup(parent_node->value);
             temp_val[strlen(temp_val) - 1] = '\0';
             printf("не %s |", temp_val);
+            free(temp_val);
+            temp_val = nullptr;
         }
         else {
             printf("ошибка: неверный путь\n ");

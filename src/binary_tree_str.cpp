@@ -17,6 +17,7 @@ void remove_curly_braces(char* dest, const char* src) {
 }
 
 int DumpTreeToDot(TreeNode* node, FILE* file) {
+    assert(file != NULL);
     if (node == NULL) return SUCCESS_DONE;
 
     char cleaned_value[INPUT_SIZE];
@@ -44,6 +45,7 @@ int DumpTreeToDot(TreeNode* node, FILE* file) {
 
 
 int CreateGraphvizFile(TreeNode* Root, const char* filename) {
+    assert(filename != NULL);
     FILE* file = fopen(filename, "w");
     if (file == NULL) {
         perror("Ошибка при открытии файла");
@@ -118,7 +120,7 @@ TreeNode* NodeFind(TreeNode* Root, elem_t value) {
 }
 
 int NodeType(TreeNode* Root, elem_t value) {
-    //assert(TreeNode != NULL);
+    assert(Root != NULL);
     printf("value in NodeFind = %s\n", value);
     TreeNode* found_node = NodeFind(Root, value);
     if (found_node) {

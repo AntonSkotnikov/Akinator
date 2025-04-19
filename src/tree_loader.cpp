@@ -20,7 +20,6 @@ void create_ptr_arr(char *buffer, int strings_num, char **address) {
 }
 
 
-
 void WriteIndent(FILE* file, int depth) {
     fprintf(file, "%*s", depth * 4, "");
 }
@@ -66,6 +65,8 @@ int SaveTreeToFile(TreeNode* root, const char* filename) {
 
 
 TreeNode* LoadTreeFromLines(char** lines, int* pos, int total_lines) {
+    assert(pos != NULL);
+    assert(lines != NULL);
     if (*pos >= total_lines) return NULL;
 
     if (strchr(lines[*pos], '{') == NULL) return NULL;
@@ -95,6 +96,7 @@ TreeNode* LoadTreeFromLines(char** lines, int* pos, int total_lines) {
 
 
 TreeNode* LoadTreeFromFile(const char* filename) {
+    assert(filename != NULL);
     FILE* file = fopen(filename, "r");
     if (!file) {
         perror("Ошибка при открытии файла");

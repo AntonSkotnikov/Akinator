@@ -22,7 +22,7 @@ TARGET   := do
 .PHONY: all clean
 
 all: $(TARGET)
-	@printf "Compilation complete\n"
+	@printf "Compilation done\n"
 
 $(TARGET): $(OBJECTS)
 	@$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@

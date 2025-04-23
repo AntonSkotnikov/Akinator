@@ -132,6 +132,9 @@ int StackPush(Stack* stk, stackElem_t value) {
 
 }
 
+
+//TODO: int StackPop(Stack* stk, stackElem_t* elem) //в elem мы передаем, куда записываем этот поп
+
 stackElem_t StackPop(Stack* stk) {
     //STACKCHECK(stk);  // Проверяем целостность стека
 

@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include "stack.h"
 #include <assert.h>
+#include "colors.h"
 
 bool is_question(const char* str) {
     return strchr(str, '?') != NULL;
@@ -31,8 +32,8 @@ TreeNode** processing_bad_input(char* input, TreeNode** node) {
         }
         else {
             printf("Не понял. Введи еще раз yes/no или да/нет. Это %s\n", (*node)->value);
-            fgets(input, INPUT_SIZE, stdin);
-            string_separator(input);
+            fgets(input, INPUT_SIZE, stdin); //TODO: отдельная функция
+            string_separator(input);         //
 
         }
     }
@@ -41,8 +42,9 @@ TreeNode** processing_bad_input(char* input, TreeNode** node) {
 }
 
 
-TreeNode** processing_no_input(char* input, TreeNode** node) {
-    if (*node == NULL) {
+TreeNode** processing_object_input(char* input, TreeNode** node) {
+    if (*node == NULL) { //NOTE: в моей реализации такое условие фактически не срабатывает. Можно либо
+                                //убрать, либо переделать
         printf("Не угадал. Добавим новый объект.\n");
 
         char* new_object = (char*)calloc(INPUT_SIZE, sizeof(char));
@@ -103,8 +105,8 @@ int AkinatorTraversal(TreeNode** node) {
     if (node == NULL || *node == NULL) return NODE_NULLPTR;
 
     while (true) {
-        char* input = (char*)calloc(INPUT_SIZE, sizeof(char));
-
+        char* input = (char*)calloc(INPUT_SIZE+1, sizeof(char));
+        //лучше не каллочить, а объявлять массив на стэке(константного размера, не очень большого)
         if (is_question((*node)->value)) {
             while (true) {
                 printf("Это %s\n", (*node)->value);
@@ -122,7 +124,7 @@ int AkinatorTraversal(TreeNode** node) {
                 }
                 else if (is_no(input)) {
                     if ((*node)->right == NULL) {
-                        TreeNode** new_node = processing_no_input(input, node);
+                        TreeNode** new_node = processing_object_input(input, node);
                         if (new_node == NULL) return SUCCESS_DONE;
                         node = new_node;
                     } else {
@@ -148,7 +150,7 @@ int AkinatorTraversal(TreeNode** node) {
                     return SUCCESS_DONE;
                 }
                 else if (is_no(input)) {
-                    TreeNode** new_node = processing_no_input(input, node);
+                    TreeNode** new_node = processing_object_input(input, node);
                     if (new_node == NULL) return SUCCESS_DONE;
                     node = new_node;
                     break;
@@ -188,12 +190,12 @@ int FindObjectWithPath(TreeNode* Node, Stack* stk, const char* target) {
     if (strchr(Node->value, '?')) {
         if (FindObjectWithPath(Node->left, stk, target) == SUCCESS_DONE) {
             StackPush(stk, Node->left);
-            printf("pointer да = %p\n", Node->left);
+            //printf("pointer да = %p\n", Node->left);
             return SUCCESS_DONE;
         }
         if (FindObjectWithPath(Node->right, stk, target) == SUCCESS_DONE) {
             StackPush(stk, Node->right);
-            printf("pointer нет = %p\n", Node->right);
+            //printf("pointer нет = %p\n", Node->right);
             return SUCCESS_DONE;
         }
     }
@@ -217,7 +219,7 @@ int AkinatorDifference(TreeNode* Node, Stack* stk_1, Stack* stk_2, elem_t word_1
     assert(stk_2 != NULL);
     FindObjectWithPath(Node, stk_1, word_1);
     FindObjectWithPath(Node, stk_2, word_2);
-    StackPush(stk_1, Node);
+    StackPush(stk_1, Node); //TODO: сделать для FindObjectWithPath обертку, чтобы функция была окончательно закончена
     StackPush(stk_2, Node);
     // StackDump(stk_1);
     // StackDump(stk_2);
@@ -242,10 +244,10 @@ int AkinatorDifference(TreeNode* Node, Stack* stk_1, Stack* stk_2, elem_t word_1
             if (parent_node_1->left == current_node_1) {
                 StackPush(stk_1, current_node_1);
                 StackPush(stk_2, current_node_2);
-                temp_val = strdup(parent_node_1->value); //NOTE нужно ли фришить?
+                temp_val = strdup(parent_node_1->value);
                 temp_val[strlen(temp_val) - 1] = '\0';
-                PrintDifference(stk_2, stk_1, temp_val, word_2, word_1);
-
+                PrintDifference(stk_2, stk_1, temp_val, word_2, word_1); //ПРОСТО УБИРАТЬ И ВОЗВРАЩАТЬ ?
+                //TODO: МОЖНО СДЕЛАТЬ ТАК: ПРИ ДАМПЕ УБИРАТЬ ВОПРОС, ПРИ ПАРСИНГЕ ВЫСТАВЛЯТЬ
                 free(temp_val);
                 temp_val = nullptr;
                 return SUCCESS_DONE;
@@ -274,11 +276,12 @@ int AkinatorDifference(TreeNode* Node, Stack* stk_1, Stack* stk_2, elem_t word_1
 
 
 int PrintRestDefinition(Stack* stk) {
-
     assert(stk != NULL);
+
     TreeNode* current_node = nullptr;
     TreeNode* parent_node = nullptr;
     char* temp_val = nullptr;
+
     current_node = StackPop(stk);
     if (current_node == NULL) {
         printf("Ошибка: стек пуст\n");
@@ -295,18 +298,20 @@ int PrintRestDefinition(Stack* stk) {
         }
 
         if (parent_node->left == current_node) {
-            //strcpy(temp_val, parent_node->value); // FIXME to printf
+            //strcpy(temp_val, parent_node->value);
             temp_val = strdup(parent_node->value);
             temp_val[strlen(temp_val) - 1] = '\0';
-            printf("%s | ", temp_val);
+            //TODO: в нынешней реализации лучше взять parent_node->value, убрать вопрос, принтить и вернуть ? обратно
+            printf(RED "%s | " RED, temp_val); //TODO: лучше иметь ',', а не |
             free(temp_val);
             temp_val = nullptr;
         }
         else if (parent_node->right == current_node) {
             temp_val = strdup(parent_node->value);
             temp_val[strlen(temp_val) - 1] = '\0';
-            printf("не %s |", temp_val);
+            printf(RED "не %s |" RED, temp_val);
             free(temp_val);
+            //TODO: тут аналогично
             temp_val = nullptr;
         }
         else {
@@ -321,11 +326,11 @@ int PrintRestDefinition(Stack* stk) {
 
 int PrintDifference(Stack* stk_1, Stack* stk_2, char* temp_val, elem_t word_1, elem_t word_2) {
 
-    printf("первое различие: %s - %s, а %s - не %s\n", word_2, temp_val, word_1, temp_val);
-    printf("А вот различающие части определений объектов: \n");
-    printf("%s - ", word_1);
+    printf(RED "первое различие: %s - %s, а %s - не %s\n" RED, word_2, temp_val, word_1, temp_val);
+    printf(BLUE "А вот различающие части определений объектов: \n" BLUE);
+    printf( YELLOW "%s - " YELLOW , word_1);
     PrintRestDefinition(stk_1);
-    printf("%s - ", word_2);
+    printf(YELLOW "%s - " YELLOW, word_2);
     PrintRestDefinition(stk_2);
 
 

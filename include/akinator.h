@@ -12,7 +12,7 @@ bool is_no(const char* str);
 const int GAME_INPUT = 16;
 int AkinatorTraversal(TreeNode** node);
 
-TreeNode** processing_no_input(char* input, TreeNode** node);
+TreeNode** processing_object_input(char* input, TreeNode** node);
 
 TreeNode** processing_bad_input(char* input, TreeNode** node);
 
